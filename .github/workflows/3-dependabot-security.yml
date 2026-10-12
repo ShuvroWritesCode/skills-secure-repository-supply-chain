@@ -84,7 +84,7 @@ jobs:
           keyphrase: 'axios-(?!0\.21\.[01])(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?'
 
       - name: Update comment - step results
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           COMMENT_ID: ${{ steps.find-last-comment.outputs.comment-id }}
           PACKAGE_JSON_RESULT: ${{ steps.check-package-json.outcome }}

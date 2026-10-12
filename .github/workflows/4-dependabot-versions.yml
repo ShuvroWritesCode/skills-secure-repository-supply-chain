@@ -78,7 +78,7 @@ jobs:
       # END: Check practical exercise
 
       - name: Update comment - step results
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           COMMENT_ID: ${{ steps.find-last-comment.outputs.comment-id }}
           DEPENDABOT_RESULT: ${{ steps.check-dependabot-file.outcome }}
