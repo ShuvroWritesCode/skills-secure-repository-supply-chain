@@ -1,6 +1,7 @@
 name: Step 2 # Dependency Alerts
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
