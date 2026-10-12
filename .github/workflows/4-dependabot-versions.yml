@@ -1,6 +1,7 @@
 name: Step 4 # Add Dependabot version updates
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -77,18 +78,44 @@ jobs:
       # END: Check practical exercise
 
       - name: Update comment - step results
-        uses: GrantBirki/comment@v3.0.3
+        uses: actions/github-script@v7
+        env:
+          COMMENT_ID: ${{ steps.find-last-comment.outputs.comment-id }}
+          DEPENDABOT_RESULT: ${{ steps.check-dependabot-file.outcome }}
         with:
-          repository: ${{ env.ISSUE_REPOSITORY }}
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
-          edit-mode: replace
-          file: exercise-toolkit/markdown-templates/step-feedback/step-results-table.md
-          vars: |
-            step_number: 4
-            results_table:
-              - description: "Checked for '${{ env.DEPENDABOT_KEYPHRASE }}' in ${{ env.DEPENDABOT_FILE }}"
-                passed: ${{ steps.check-dependabot-file.outcome == 'success' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+            const issue_number = Number(process.env.ISSUE_NUMBER);
+            const comment_id = Number(process.env.COMMENT_ID);
+
+            const passed = process.env.DEPENDABOT_RESULT === 'success';
+
+            const body = [
+              '## Step 4: Dependabot Version Updates',
+              '',
+              '| Check | Result |',
+              '|-------|--------|',
+              `| Found nuget in .github/dependabot.yml | ${passed ? '✅ Passed' : '❌ Failed'} |`,
+              '',
+              passed ? '✅ All checks passed!' : '❌ Check failed.'
+            ].join('\n');
+
+            if (Number.isSafeInteger(comment_id) && comment_id > 0) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
 
       - name: Fail job if not all checks passed
         if: contains(steps.*.outcome, 'failure')
